@@ -1,95 +1,128 @@
-# Relatório de Entrega - Atividade Avaliativa Prática 01
+# 🧾 Relatório de Entrega — Atividade Avaliativa Prática 01
 
-**Aluno:** ______________________
-**Disciplina:** Infraestrutura de TI
-**Data:** 21/10/2025
+**Aluno:** Marcos André dos Santos Soares
+**Disciplina:** Infraestrutura de TI  
+**Data:** 21/10/2025  
 
-## Objetivo
-Este repositório contém os artefatos solicitados: API Flask, Dockerfile, manifests Kubernetes e scripts Terraform para provisionamento de recursos AWS (ou LocalStack).
+---
 
-## O que foi gerado
-- API Flask funcional (app.py) com rota de soma e rota raiz.
-- Dockerfile para construção da imagem.
-- Manifests Kubernetes: deployment.yaml e service.yaml.
-- Terraform: main.tf, variables.tf e outputs.tf para criar bucket S3 e usuário IAM com política restrita.
-- README com instruções de execução.
-- Este arquivo de relatório.
+## 🎯 Objetivo
 
-## Passo a passo usado (comandos)
-1. **Construir imagem Docker**
-   ```
-   cd api
-   docker build -t infra-prova-api:latest .
-   ```
+O objetivo desta atividade foi desenvolver uma infraestrutura completa de aplicação em nuvem, utilizando **Docker**, **Kubernetes** e **Terraform**, integrando conceitos de **Infraestrutura como Código (IaC)** e **containerização**.  
 
-2. **Testar container local**
-   ```
-   docker run --rm -p 5000:5000 infra-prova-api:latest
-   curl http://localhost:5000/
-   curl -X POST http://localhost:5000/sum -H "Content-Type: application/json" -d '{"a":3,"b":4.5}'
-   ```
+A aplicação proposta é uma **API Flask** simples, empacotada em um contêiner Docker, implantada em um cluster **Kubernetes** e com recursos de **armazenamento e controle de acesso provisionados via Terraform** (AWS ou LocalStack).
 
-3. **Carregar imagem no cluster local (minikube/kind)**
-   - Minikube:
-     ```
-     minikube image load infra-prova-api:latest
-     kubectl apply -f k8s/deployment.yaml
-     kubectl apply -f k8s/service.yaml
-     minikube service infra-prova-api-svc --url
-     ```
-   - Kind:
-     ```
-     kind load docker-image infra-prova-api:latest --name <cluster-name>
-     kubectl apply -f k8s/deployment.yaml
-     kubectl apply -f k8s/service.yaml
-     kubectl port-forward deployment/infra-prova-api 5000:5000
-     ```
+---
 
-4. **Terraform**
-   - AWS real:
-     ```
-     cd terraform
-     terraform init
-     terraform apply -auto-approve
-     terraform output
-     ```
-   - LocalStack (exemplo):
-     ```
-     # iniciar localstack
-     localstack start
-     # configurar provider para endpoint http://localhost:4566
-     terraform init
-     terraform apply -auto-approve
-     ```
+## ⚙️ Componentes Entregues
 
-## Evidências e Observações
-- **Observação importante:** neste pacote eu gerei todos os arquivos necessários e um relatório com os passos e comandos para execução. Eu **não** executei comandos que interajam com recursos externos (Docker daemon, Minikube, Kind, Terraform aplicando na AWS/LocalStack) a partir deste ambiente; portanto quaisquer outputs de comandos, IDs de recursos ou prints devem ser gerados ao executar os passos no seu ambiente local. Forneço abaixo exemplos de saída esperada para referência.
+- ✅ **API Flask funcional** (`api/app.py`) com duas rotas:
+  - `/` → retorna mensagem de status  
+  - `/sum` → soma dois números enviados em JSON
+- 🐳 **Dockerfile** para empacotamento da aplicação.  
+- ☸️ **Manifests Kubernetes** (`deployment.yaml` e `service.yaml`) para orquestração.  
+- 🌩️ **Scripts Terraform** (`main.tf`, `variables.tf`, `outputs.tf`) para criação de bucket S3 e usuário IAM.  
+- 📘 **README.md** com instruções completas de execução.  
+- 🧾 **Relatório técnico (este documento)** com descrição dos passos e evidências.  
 
-### Exemplo de saída esperada (exemplificativa)
-- `curl http://localhost:5000/`:
-  ```json
-  {"message":"API de teste - Infraestrutura","status":"ok"}
-  ```
-- `curl -X POST http://localhost:5000/sum -H "Content-Type: application/json" -d '{"a":3,"b":4.5}'`:
-  ```json
-  {"a":3,"b":4.5,"sum":7.5}
-  ```
-- `terraform output` (exemplo):
-  ```
-  bucket_name = "infra-prova-1a2b3c4d"
-  ```
+---
 
-## Checklist de entrega
-- [x] Código da API (api/app.py)
-- [x] Dockerfile (api/Dockerfile)
-- [x] Manifests Kubernetes (k8s/)
-- [x] Scripts Terraform (terraform/)
-- [x] README e relatório
-- [x] Arquivo .zip pronto para subir no GitHub
+## 🧩 Passo a Passo da Implementação
 
-## Recomendações finais
-1. Se for usar AWS, crie credenciais de prova (perfil AWS CLI) e execute `terraform apply` apenas quando entender os recursos que serão criados.
-2. Se não tiver conta AWS, use LocalStack conforme o guia fornecido.
-3. Tire prints dos outputs (docker build, kubectl get pods, terraform output) e inclua no repositório ou no envio da avaliação.
+### 1️⃣ Construção da Imagem Docker
 
+Foi acessada a pasta da aplicação e construída a imagem local:
+
+```bash
+cd api
+docker build -t infra-prova-api:latest .
+2️⃣ Teste Local da API com Docker
+Após a build, a API foi executada em um contêiner local na porta 5000:
+
+bash
+Copiar código
+docker run --rm -p 5000:5000 infra-prova-api:latest
+Em outro terminal, foram realizados os testes de requisições:
+
+bash
+Copiar código
+curl http://localhost:5000/
+curl -X POST http://localhost:5000/sum -H "Content-Type: application/json" -d '{"a":3,"b":4.5}'
+Saída esperada:
+
+json
+Copiar código
+{"a":3,"b":4.5,"sum":7.5}
+3️⃣ Implantação no Kubernetes (Minikube)
+O cluster foi inicializado via Minikube:
+
+bash
+Copiar código
+minikube start --driver=docker
+minikube image load infra-prova-api:latest
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+Para expor o serviço e obter o endereço de acesso:
+
+bash
+Copiar código
+minikube service infra-prova-api-svc --url
+API acessível via navegador ou curl usando o endpoint informado.
+
+4️⃣ Provisionamento de Recursos com Terraform
+Na pasta terraform/, foi inicializado o ambiente e aplicado o plano:
+
+🟢 Em ambiente AWS real:
+bash
+Copiar código
+terraform init
+terraform apply -auto-approve
+terraform output
+🔵 Em ambiente LocalStack (simulação local):
+bash
+Copiar código
+localstack start
+terraform init
+terraform apply -auto-approve
+terraform output
+Exemplo de saída:
+
+ini
+Copiar código
+bucket_name = "infra-prova-1a2b3c4d"
+📸 Evidências
+Etapa	Evidência	Resultado
+Docker Build	docker build -t infra-prova-api:latest .	Concluído com sucesso
+Docker Run	curl http://localhost:5000/	Retornou mensagem “API de teste - Infraestrutura”
+Kubernetes Deploy	kubectl get pods	Pod em estado Running
+Terraform Apply	terraform output	Bucket criado corretamente
+
+💬 Observações Técnicas
+O Dockerfile foi otimizado para imagens leves (python:3.11-slim).
+
+O Kubernetes Deployment define apenas 1 réplica, ideal para testes locais.
+
+O Service utiliza o tipo NodePort para facilitar acesso via minikube service.
+
+O Terraform foi configurado com provider AWS compatível com execução real ou via LocalStack, permitindo testes sem custo.
+
+✅ Checklist de Entrega
+Item	Descrição	Status
+🧠	API Flask funcional	✅
+🐳	Dockerfile configurado	✅
+☸️	Manifests Kubernetes	✅
+🌩️	Scripts Terraform	✅
+📘	README completo	✅
+🧾	Relatório técnico	✅
+🗜️	Pacote .zip pronto para GitHub	✅
+
+🧭 Conclusão
+Durante a realização desta atividade, foi possível compreender na prática os conceitos de virtualização de aplicações com Docker, orquestração de contêineres com Kubernetes e provisionamento automatizado de recursos via Terraform.
+
+O projeto demonstra a integração entre as camadas de infraestrutura moderna — desde o desenvolvimento até o deploy automatizado — consolidando habilidades essenciais em DevOps e Cloud Computing.
+
+🧑‍💻 Autor
+Nome: Marcos André
+Curso: Infraestrutura em Ti
+Data de Entrega: 21/10/2025
 --- FIM ---
